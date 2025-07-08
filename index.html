@@ -330,10 +330,10 @@ async function kirimSemua() {
 
   try {
     const res = await fetch(API_URL + "?action=kirimDataOutput", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(dataTerkumpul)
-    });
+  method: "POST",
+  headers: { "Content-Type": "text/plain" },
+  body: JSON.stringify(dataTerkumpul)
+});
 
     const text = await res.text();
     console.log("Respon dari server:", text);
