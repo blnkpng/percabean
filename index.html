@@ -327,15 +327,16 @@ async function kirimSemua() {
     showToast("Belum ada data");
     return;
   }
+
   try {
-    const res = await fetch(API_URL, {
+    const res = await fetch(API_URL + "?action=kirimDataOutput", {
       method: "POST",
-      body: JSON.stringify(dataTerkumpul),
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dataTerkumpul)
     });
 
     const text = await res.text();
-    console.log("Respon dari server:", text); // 🧠 penting
+    console.log("Respon dari server:", text);
     showToast("Terkirim 🚀");
     dataTerkumpul.length = 0;
     renderTable();
@@ -344,7 +345,6 @@ async function kirimSemua() {
     showToast("Gagal kirim! " + err.message);
   }
 }
-
   document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("tanggal").valueAsDate = new Date();
     populateDropdown();
