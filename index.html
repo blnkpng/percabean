@@ -1,354 +1,713 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Form Pengeluaran - Minang Chicken</title>
-
-  <!-- ===== CSS STYLING KHUSUS IOS DESIGN ===== -->
+  <meta charset="UTF-8" />
+  <title>Input Barang Keluar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* WARNA UTAMA DAN STANDAR VISUAL */
-    :root {
-      --primary: #007aff;               /* Biru iOS khas */
-      --background: #f2f2f7;            /* Background lembut */
-      --surface: #ffffff;               /* Putih bersih */
-      --text-primary: #1c1c1e;          /* Warna teks utama */
-      --border-color: #d1d1d6;          /* Warna border soft */
-      --success: #34c759;               /* Warna sukses ala iOS */
-      --radius: 12px;                   /* Radius umum */
-    }
+:root {
+  --bg-light: #ffffff;
+  --bg-dark: #121212;
+  --grid-light: #dddddd;
+  --grid-dark: #222222;
+  --text-light: #000000;
+  --text-dark: #eeeeee;
+  --input-bg-light: #ffffff;
+  --input-bg-dark: #222222;
+  --input-border-light: #000000;
+  --input-border-dark: #eeeeee;
+  --button-light-bg: #000000;
+  --button-dark-bg: #eeeeee;
+  --button-light-text: #ffffff;
+  --button-dark-text: #000000;
+  --popup-bg-light: #ffffff;
+  --popup-bg-dark: #2a2a2a;
+  --subtitle-light: #666;
+  --subtitle-dark: #bbb;
+}
 
-    * {
-      box-sizing: border-box;
-    }
+body {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  background-color: var(--bg-light);
+  background-image: linear-gradient(to right, var(--grid-light) 1px, transparent 1px),
+                    linear-gradient(to bottom, var(--grid-light) 1px, transparent 1px);
+  background-size: 30px 30px;
+  color: var(--text-light);
+  transition: background-color 0.5s ease, color 0.5s ease;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      margin: 0;
-      padding: 16px;
-      background-color: var(--background);
-      color: var(--text-primary);
-    }
+body.dark {
+  background-color: var(--bg-dark);
+  background-image: linear-gradient(to right, var(--grid-dark) 1px, transparent 1px),
+                    linear-gradient(to bottom, var(--grid-dark) 1px, transparent 1px);
+  color: var(--text-dark);
+}
 
-    /* WRAPPER KONTEN UTAMA */
-    .container {
-      max-width: 720px;
-      margin: 0 auto;
-      background-color: var(--surface);
-      border-radius: var(--radius);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      padding: 24px;
-    }
+.subtitle {
+  text-align: center;
+  font-weight: 400;
+  margin: 1rem 0;
+  font-size: 14px;
+  color: var(--subtitle-light);
+margin-top : 0px;
+}
 
-    /* JUDUL FORM */
-    h2 {
-      text-align: center;
-      margin-bottom: 24px;
-    }
+body.dark .subtitle {
+  color: var(--subtitle-dark);
+}
 
-    /* GRUP INPUT */
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-bottom: 16px;
-    }
+.container {
+  background: var(--bg-light);
+  color: var(--text-light);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  max-width: 600px;
+  width: 100%;
+  transition: 0.5s ease;
+}
 
-    label {
-      font-weight: 500;
-      font-size: 15px;
-    }
+body.dark .container {
+  background: #1e1e1e;
+  color: var(--text-dark);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
 
-    input, select {
-      padding: 12px;
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius);
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.form-group {
+  flex: 1 1 38%;
+  display: flex;
+  flex-direction: column;
+
+}
+.form-group.full {
+  flex: 1 1 100%;
+}
+
+label {
+  font-weight: 400;
+  margin-bottom: 10px;
+text-align : center;
+}
+
+input, select, textarea {
+  font-family: 'Montserrat';
+  padding: 0.6rem;
+  font-size: 16px;
+  border-radius: 20px;
+  border: 2px solid var(--input-border-light);
+  background: var(--input-bg-light);
+  color: var(--text-light);
+  text-align: center;
+  transition: 0.3s;
+}
+
+body.dark input,
+body.dark select,
+body.dark textarea {
+  background: var(--input-bg-dark);
+  color: var(--text-dark);
+  border-color: var(--input-border-dark);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #ffa500;
+  box-shadow: 0 0 5px #ffa500aa;
+}
+
+.button, #loginBtn {
+  margin-top: 1rem;
+  padding: 0.7rem 1.5rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 100px;
+  background-color: var(--button-light-bg);
+  color: var(--button-light-text);
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+body.dark .button, body.dark #loginBtn {
+  background-color: var(--button-dark-bg);
+  color: var(--button-dark-text);
+}
+
+.button:hover, #loginBtn:hover {
+  opacity: 0.9;
+}
+
+.toggle-mode {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  font-weight: bold;
+  font-family: inherit;
+  color: inherit;
+}
+
+.header-img {
+  display: block;
+  margin: 0 auto 1rem;
+  width: 340px;
+  max-width: 50%;
+  border-radius: 25px;
+  transition: filter 0.5s ease;
+  user-select: none;
+}
+body.dark .header img:hover {
+  filter: drop-shadow(0 0 10px #ffa500);
+  cursor: pointer; /* opsional, biar mouse berubah jadi pointer */
+}
+.popup {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.popup-content {
+  background: var(--popup-bg-light);
+  padding: 2rem;
+  border-radius: 16px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  color: var(--text-light);
+}
+
+body.dark .popup-content {
+  background: var(--popup-bg-dark);
+  color: var(--text-dark);
+}
+
+.popup-buttons {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: space-around;
+}
+
+.popup-buttons button {
+  padding: 0.5rem 1.2rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.popup-buttons .send {
+  background: #28a745;
+  color: white;
+}
+
+.popup-buttons .cancel {
+  background: #dc3545;
+  color: white;
+}
+
+@media (max-width: 600px) {
+  .form-group {
+    flex: 1 1 100%;
+  }
+}
+.button-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 15px; /* jarak antar tombol */
+  flex-wrap: nowrap; /* jangan sampai tombol pindah baris */
+  align-items: center; /* vertical center */
+  padding: 0 10px;
+}
+    /* Button */
+    .animated-button {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+       padding: 0.6rem;
+     border: 4px solid transparent;
+      font-family: 'Montserrat';
       font-size: 16px;
-      background-color: #fefefe;
-      width: 100%;
-    }
-
-    input.readonly {
-      background-color: #f0f0f5;
-    }
-
-    /* GRUP TOMBOL */
-    .button-group {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    button {
-      flex: 1;
-      padding: 12px;
-      font-size: 16px;
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      border-radius: var(--radius);
+      background-color: #fff;
+      border-radius: 100px;
+      font-weight: 800;
+      color: #000;
+      box-shadow: 0 0 0 2px #000;
       cursor: pointer;
-      transition: background-color 0.2s;
+      overflow: hidden;
+      transition:
+      background-color 0.5s ease,
+      color 0.5s ease,
+      box-shadow 0.5s ease;
+      user-select: none;
+      min-width: 180px;
+      margin: 0 auto;
+    }
+    body.dark .animated-button {
+      background-color: #121212;
+      color: #eee;
+      box-shadow: 0 0 0 2px #eee;
     }
 
-    button:hover {
-      background-color: #005fcb;
-    }
-
-    /* WRAPPER TABEL AGAR RESPONSIF */
-    .table-wrapper {
-      overflow-x: auto;
-      margin-top: 32px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 700px;
-    }
-
-    th, td {
-      padding: 10px 12px;
-      text-align: left;
-      font-size: 14px;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    th {
-      background-color: #f7f7f7;
-    }
-
-    /* TOAST NOTIFIKASI GAYA IOS */
-    #toast {
-      visibility: hidden;
-      min-width: 250px;
-      background-color: var(--success);
-      color: white;
-      text-align: center;
-      border-radius: var(--radius);
-      padding: 12px 20px;
-      position: fixed;
-      z-index: 999;
+    .animated-button .circle {
+      position: absolute;
+      top: 50%;
       left: 50%;
-      bottom: 30px;
-      transform: translateX(-50%);
-      font-size: 16px;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 15px;
+      background-color: #da0000;
+      border-radius: 50%;
       opacity: 0;
-      transition: opacity 0.4s ease-in-out, visibility 0.4s;
+      transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+      pointer-events: none;
+    }
+    body.dark .animated-button .circle {
+      background-color: #da0000;
     }
 
-    #toast.show {
-      visibility: visible;
+    .animated-button .text {
+      position: relative;
+      z-index: 1;
+      transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+      user-select: none;
+      
+    }
+
+    .animated-button:hover {
+      box-shadow: 0 0 0 12px transparent;
+      color: #fff;
+      background-color: #da0000;
+      border-radius: 12px;
+    }
+    body.dark .animated-button:hover {
+      background-color: #da0000;
+      color: #fff;
+      box-shadow: 0 0 0 12px transparent;
+      border-radius: 12px;
+    }
+
+    .animated-button:active {
+      scale: 0.95;
+      box-shadow: 0 0 0 4px #000;
+    }
+    body.dark .animated-button:active {
+      box-shadow: 0 0 0 4px #eee;
+    }
+
+    .animated-button:hover .circle {
+      width: 220px;
+      height: 220px;
       opacity: 1;
     }
+    /* Menu Utama */
+.menu-btn:hover {
+  background-color: #187498;
+  color: #fff;
+}
+body.dark .menu-btn:hover {
+  background-color: #187498;
+  color: #fff;
+}
+.menu-btn .circle {
+  background-color: #187498;
+}
+body.dark .menu-btn .circle {
+  background-color: #187498;
+}
+
+/* Kirim */
+.kirim-btn:hover {
+  background-color: #16610E;
+  color: #fff;
+}
+body.dark .kirim-btn:hover {
+  background-color: #16610E;
+  color: #fff;
+}
+.kirim-btn .circle {
+  background-color: #16610E;
+}
+body.dark .kirim-btn .circle {
+  background-color: #16610E;
+}
+
+/* Logout */
+.logout-btn:hover {
+  background-color: #CB0404;
+  color: #fff;
+}
+body.dark .logout-btn:hover {
+  background-color: #CB0404;
+  color: #fff;
+}
+.logout-btn .circle {
+  background-color: #CB0404;
+}
+body.dark .logout-btn .circle {
+  background-color: #CB0404;
+}
+
+@media (max-width: 768px) {
+  .button-wrapper {
+    gap: 8px;
+    padding: 5px;
+  }
+
+  .animated-button {
+    flex: 1; /* tombol berbagi ruang sama rata */
+    max-width: 120px; /* batas maksimal lebar tombol */
+    height: 80px; /* tinggi tetap */
+    font-size: 0.8rem; /* ukuran font tetap */
+    padding: 0;
+    min-width: 120px; /* hilangkan min-width agar bisa mengecil */
+  }
+}
+
+@media (max-width: 480px) {
+  .animated-button {
+    max-width: 100px;
+    height: 36px;
+    font-size: 0.75rem;
+  }
+}
+
+    /* Copyright */
+    .copyright {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #888;
+      user-select: none;
+      transition: color 0.5s ease;
+      text-align : center;
+    }
+    body.dark .copyright {
+      color: #666;
+    }
+    input::placeholder {
+      color: #666;
+      user-select: none;
+      font-size : 16px;
+    }
+    body.dark input::placeholder {
+      color: #aaa;
+    } 
+    input:invalid {
+    border-color: #f87171;
+    }
+    input:focus {
+    outline: none;
+    ring: 2px solid #60a5fa;
+    transition: all 0.2s ease-in-out;
+    }
+    input:invalid {
+    border-color: #f87171;
+    }
+    button[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    }
+    /* Stok Info Box */
+.stok-info {
+  display: none;
+  margin-top: 2px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a202c;
+  transition: color 0.3s ease;
+}
+
+body.dark .stok-info {
+  color: #e2e8f0;
+}
+
+
   </style>
 </head>
 <body>
-
-  <!-- ========== FORM INPUT DATA ========== -->
+  <button class="toggle-mode" onclick="document.body.classList.toggle('dark')">🌓</button>
   <div class="container">
-    <h2>Form Pengeluaran</h2>
-    <form id="pengeluaranForm">
-
-      <!-- Input Tanggal -->
-      <div class="form-group">
-        <label>Tanggal</label>
-        <input type="date" id="tanggal" required>
-      </div>
-
-      <!-- Dropdown Nama Barang -->
-      <div class="form-group">
-        <label>Nama Barang</label>
-        <select id="namaBarang" required onchange="updateAutoFields()">
-          <option value="">-- Pilih Barang --</option>
-        </select>
-      </div>
-
-      <!-- Input Quantity -->
-      <div class="form-group">
-        <label>Qty</label>
-        <input type="number" id="qty" required oninput="updateTotal()">
-      </div>
-
-      <!-- Input Satuan (Otomatis) -->
-      <div class="form-group">
-        <label>Satuan</label>
-        <input type="text" id="satuan" class="readonly" readonly>
-      </div>
-
-      <!-- Input Laba Manual -->
-      <div class="form-group">
-        <label>Harga Laba (Rp)</label>
-        <input type="number" id="laba" required oninput="updateTotal()">
-      </div>
-
-      <!-- Harga Jual Otomatis -->
-      <div class="form-group">
-        <label>Harga Jual (Rp)</label>
-        <input type="number" id="hargaJual" class="readonly" readonly>
-      </div>
-
-      <!-- Total Harga Otomatis -->
-      <div class="form-group">
-        <label>Total Harga (Rp)</label>
-        <input type="text" id="totalHarga" class="readonly" readonly>
-      </div>
-
-      <!-- Tombol Aksi -->
-      <div class="button-group">
-        <button type="button" onclick="tambahKeDaftar()">+ Tambah ke Daftar</button>
-        <button type="button" onclick="kirimSemua()">Kirim Semua</button>
-      </div>
-    </form>
+    <h2 style="text-align:center; margin-bottom: 0;">Form Barang Keluar</h2>
+    <p class="subtitle">Isi data barang yang akan keluar</p>
+    <form id="barangForm">
+  <div class="form-group full">
+    <label for="tanggal"></label>
+    <input type="date" id="tanggal" required>
   </div>
 
-  <!-- ========== TABEL DATA ========== -->
-  <div class="container table-wrapper">
-    <h3>Daftar Terkumpul</h3>
-    <table id="dataTable">
-      <thead>
-        <tr>
-          <th>Tanggal</th>
-          <th>Barang</th>
-          <th>Qty</th>
-          <th>Satuan</th>
-          <th>Laba</th>
-          <th>Jual</th>
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+  <div class="form-group half">
+    <label for="namaBarang"></label>
+    <select id="namaBarang" required placeholder="-- Pilih Nama Barang --"></select>
   </div>
 
-  <!-- ========== TOAST NOTIFIKASI ========== -->
-  <div id="toast"></div>
+  <div class="form-group half">
+    <label for="qty"></label>
+    <input type="number" id="qty" required min="1" placeholder="Qty">
+    <div id="stokInfo" class="stok-info"></div>
+  </div>
 
-  <!-- ========== SCRIPT LOGIKA FORM ========== -->
+  <div class="form-group half">
+    <label for="satuan"></label>
+    <input type="text" id="satuan" readonly placeholder="Satuan">
+  </div>
+
+  <div class="form-group half">
+    <label for="harga"></label>
+    <input type="text" id="harga" readonly placeholder="Harga Jual">
+  </div>
+
+  <div class="form-group half">
+    <label for="laba"></label>
+    <input type="text" id="laba" required placeholder="Masukan Laba">
+  </div>
+
+  <div class="form-group half">
+    <label for="totalHarga"></label>
+    <input type="text" id="totalHarga" readonly placeholder="Rp0">
+  </div>
+
+  <div class="form-group full" style="text-align: center;">
+    <button type="submit" class="animated-button kirim-btn">
+      <span class="circle"></span>
+      <span class="text">Kirim</span>
+    </button>
+  </div>
+</form>
+    <p class="copyright">&copy; Percabean | 2025</p>
+  </div>
+
 <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbwwnK8TXS84DVnOoSNfZeeTA212LxJYwVkp541YSbYAgo-bEeoNDCzOIvutJYlhkIBx6g/exec";
+  // Ambil elemen DOM
+  const namaBarangSelect = document.getElementById('namaBarang');
+  const satuanInput = document.getElementById('satuan');
+  const hargaInput = document.getElementById('harga');
+  const stokInfo = document.getElementById('stokInfo');
+  const qtyInput = document.getElementById('qty');
+  const totalHargaInput = document.getElementById('totalHarga');
+  const labaInput = document.getElementById('laba');
+  const form = document.getElementById('barangForm');
+  const submitBtn = form.querySelector('button[type="submit"]');
 
-  let listBahan = {};  // data dari server
-  const dataTerkumpul = [];
+  // Set tanggal otomatis ke hari ini
+  document.getElementById("tanggal").valueAsDate = new Date();
 
-  function showToast(message) {
-    const toast = document.getElementById("toast");
-    toast.textContent = message;
-    toast.className = "show";
-    setTimeout(() => toast.className = "", 3000);
+  let barangList = [];
+
+  // Fungsi untuk format ke Rupiah
+  function formatRupiah(angka) {
+    return 'Rp' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
-  async function populateDropdown() {
-    try {
-      const res = await fetch(API_URL);
-      const data = await res.json();
+  // Update total harga ketika qty atau laba berubah
+  function updateTotalHarga() {
+    const selected = barangList.find(b => b.namaBarang === namaBarangSelect.value);
+    const qty = parseInt(qtyInput.value);
+    let laba = parseInt(labaInput.value.replace(/[^\d]/g, '')) || 0;
 
-      const dropdown = document.getElementById("namaBarang");
-      dropdown.innerHTML = `<option value="">-- Pilih Barang --</option>`;
-
-      data.forEach(item => {
-        const nama = item.name || item.nama; // fallback
-        const satuan = item.satuan;
-        const hargaJual = parseFloat(item.hargaJual || item.price || 0);
-        const qty = parseFloat(item.qty || 0);
-
-        const option = new Option(nama, nama);
-        dropdown.add(option);
-
-        listBahan[nama] = { satuan, hargaJual, qty };
-      });
-    } catch (err) {
-      console.error("Fetch error:", err);
-      showToast("❌ Gagal ambil data");
-    }
-  }
-
-  function updateAutoFields() {
-    const barang = document.getElementById("namaBarang").value;
-    if (barang && listBahan[barang]) {
-      document.getElementById("satuan").value = listBahan[barang].satuan;
-      document.getElementById("hargaJual").value = listBahan[barang].hargaJual;
-      updateTotal();
+    if (selected && !isNaN(qty)) {
+      const harga = selected.harga;
+      const total = (harga + laba) * qty;
+      totalHargaInput.value = formatRupiah(total);
     } else {
-      document.getElementById("satuan").value = "";
-      document.getElementById("hargaJual").value = "";
-      document.getElementById("totalHarga").value = "";
+      totalHargaInput.value = '';
     }
   }
 
-  function updateTotal() {
-    const qty = parseFloat(document.getElementById("qty").value) || 0;
-    const laba = parseFloat(document.getElementById("laba").value) || 0;
-    const hargaJual = parseFloat(document.getElementById("hargaJual").value) || 0;
-    const total = qty * (hargaJual + laba);
-    document.getElementById("totalHarga").value = "Rp " + total.toLocaleString('id-ID');
+  // Ambil data dari server Glitch
+  fetch("https://script.google.com/macros/s/AKfycbwwnK8TXS84DVnOoSNfZeeTA212LxJYwVkp541YSbYAgo-bEeoNDCzOIvutJYlhkIBx6g/exec?action=getBahanData")
+    .then(res => res.json())
+    .then(data => {
+      if (!Array.isArray(data)) throw new Error("Data bukan array");
+
+      barangList = data;
+
+      // Tambahkan opsi default
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.disabled = true;
+      defaultOption.selected = true;
+      defaultOption.hidden = true;
+      defaultOption.textContent = '-- Pilih Barang --';
+      namaBarangSelect.appendChild(defaultOption);
+
+      // Tambahkan semua opsi dari data
+      barangList.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.namaBarang;
+        option.textContent = item.namaBarang;
+        namaBarangSelect.appendChild(option);
+      });
+    })
+    .catch(err => {
+      console.error("Gagal ambil data barang:", err);
+      alert("Gagal memuat data barang!");
+    });
+
+  // Event ketika nama barang dipilih
+  namaBarangSelect.addEventListener('change', () => {
+    const selected = barangList.find(b => b.namaBarang === namaBarangSelect.value);
+    if (selected) {
+      satuanInput.value = selected.satuan;
+      hargaInput.value = formatRupiah(selected.harga);
+      stokInfo.textContent = `Stok tersedia: ${selected.qty} ${selected.satuan}`;
+      stokInfo.style.display = 'block'; // Tampilkan info stok
+      qtyInput.max = selected.qty;
+      updateTotalHarga();
+    } else {
+      stokInfo.style.display = 'none'; // Sembunyikan jika tidak valid
+    }
+  });
+
+  // Event untuk update harga total saat input qty atau laba berubah
+  qtyInput.addEventListener('input', updateTotalHarga);
+
+  labaInput.addEventListener('input', () => {
+    let raw = labaInput.value.replace(/[^\d]/g, '');
+    labaInput.value = formatRupiah(raw);
+    updateTotalHarga();
+  });
+
+
+  // Fungsi loading saat form dikirim
+  function setLoadingState(loading) {
+    submitBtn.disabled = loading;
+    submitBtn.textContent = loading ? "Mengirim..." : "Kirim";
   }
 
-  function tambahKeDaftar() {
-    const data = {
-      tanggal: document.getElementById("tanggal").value,
-      namaBarang: document.getElementById("namaBarang").value,
-      qty: document.getElementById("qty").value,
-      satuan: document.getElementById("satuan").value,
-      laba: document.getElementById("laba").value,
-      hargaJual: document.getElementById("hargaJual").value,
-      total: document.getElementById("totalHarga").value
-    };
-    if (!data.namaBarang || !data.qty || !data.laba) {
-      showToast("Lengkapi semua field");
+  // Fungsi penanda input error
+  function markInvalid(input) {
+    input.classList.add("border-red-500", "ring-red-300", "ring-2");
+  }
+
+  // Fungsi untuk menghapus penanda error
+  function clearInvalid(input) {
+    input.classList.remove("border-red-500", "ring-red-300", "ring-2");
+  }
+
+  // Proses submit form
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    setLoadingState(true);
+
+    const tanggalInput = document.getElementById('tanggal');
+    const labaRaw = labaInput.value.replace(/[^\d]/g, '');
+    const selected = barangList.find(b => b.namaBarang === namaBarangSelect.value);
+    const qty = parseInt(qtyInput.value);
+
+    // Validasi input
+    let isValid = true;
+    clearInvalid(tanggalInput);
+    clearInvalid(qtyInput);
+    clearInvalid(labaInput);
+
+    if (!tanggalInput.value) {
+      markInvalid(tanggalInput);
+      isValid = false;
+    }
+
+    if (!qty || qty <= 0 || isNaN(qty)) {
+      markInvalid(qtyInput);
+      isValid = false;
+    }
+
+    if (!labaRaw || isNaN(parseInt(labaRaw))) {
+      markInvalid(labaInput);
+      isValid = false;
+    }
+
+    if (!selected) {
+      alert("Barang belum dipilih.");
+      isValid = false;
+    }
+
+    if (qty > selected?.qty) {
+      alert("Jumlah melebihi stok tersedia!");
+      markInvalid(qtyInput);
+      isValid = false;
+    }
+
+    if (!isValid) {
+      setLoadingState(false);
       return;
     }
-    dataTerkumpul.push(data);
-    renderTable();
-    document.getElementById("pengeluaranForm").reset();
-    document.getElementById("tanggal").valueAsDate = new Date();
-    showToast("Ditambahkan ✅");
-  }
 
-  function renderTable() {
-    const tbody = document.querySelector("#dataTable tbody");
-    tbody.innerHTML = "";
-    dataTerkumpul.forEach(item => {
-      const row = [
-        item.tanggal,
-        item.namaBarang,
-        item.qty,
-        item.satuan,
-        `Rp ${parseInt(item.laba).toLocaleString('id-ID')}`,
-        `Rp ${parseInt(item.hargaJual).toLocaleString('id-ID')}`,
-        item.total
-      ].map(v => `<td>${v}</td>`).join("");
-      tbody.innerHTML += `<tr>${row}</tr>`;
-    });
-  }
+    // Siapkan data untuk dikirim
+    const data = {
+      tanggal: tanggalInput.value,
+      namaBarang: selected.namaBarang,
+      qty: qty,
+      satuan: selected.satuan,
+      harga: selected.harga,
+      laba: parseInt(labaRaw)
+    };
 
-async function kirimSemua() {
-  if (!dataTerkumpul.length) {
-    showToast("Belum ada data");
-    return;
-  }
-
-  try {
-    const res = await fetch(API_URL + "?action=kirimDataOutput", {
+    // Kirim data ke server
+// Kirim data ke server
+fetch("https://script.google.com/macros/s/AKfycbwwnK8TXS84DVnOoSNfZeeTA212LxJYwVkp541YSbYAgo-bEeoNDCzOIvutJYlhkIBx6g/exec?action=kirimDataOutput", {
   method: "POST",
-  headers: { "Content-Type": "text/plain" },
-  body: JSON.stringify(dataTerkumpul)
-});
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify(data)
+})
+  .then(async response => {
+    if (!response.ok) throw new Error("Gagal mengirim data");
 
-    const text = await res.text();
-    console.log("Respon dari server:", text);
-    showToast("Terkirim 🚀");
-    dataTerkumpul.length = 0;
-    renderTable();
-  } catch (err) {
-    console.error("❌ Fetch Error:", err);
-    showToast("Gagal kirim! " + err.message);
-  }
-}
-  document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("tanggal").valueAsDate = new Date();
-    populateDropdown();
+    const contentType = response.headers.get("Content-Type");
+    if (contentType && contentType.includes("application/json")) {
+      return await response.json();
+    } else {
+      return await response.text(); // fallback untuk response non-JSON
+    }
+  })
+  .then(() => {
+    Swal.fire({
+      icon: 'success',
+      title: 'Berhasil!',
+      text: 'Data barang keluar berhasil disimpan.',
+      background: document.body.classList.contains("dark") ? "#2a2a2a" : "#ffffff",
+      color: document.body.classList.contains("dark") ? "#eeeeee" : "#000000",
+      confirmButtonColor: '#28a745'
+    }).then(() => {
+      location.reload(); // ⬅️ reload otomatis setelah user klik OK
+    });
+  })
+  .catch(err => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Gagal!',
+      text: 'Terjadi kesalahan saat mengirim data. Silakan coba lagi.',
+      background: document.body.classList.contains("dark") ? "#2a2a2a" : "#ffffff",
+      color: document.body.classList.contains("dark") ? "#eeeeee" : "#000000",
+      confirmButtonColor: '#dc3545'
+    });
+    console.error("Error:", err);
+  })
+  .finally(() => {
+    setLoadingState(false);
   });
+});
 </script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </body>
 </html>
