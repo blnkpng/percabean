@@ -666,12 +666,12 @@ body.dark .stok-info {
 
 // 📨 Kirim data ke server GAS
 fetch("https://script.google.com/macros/s/AKfycbwtjXiwx9bLxUrFdGhqxqQ8PVuw7kWL5dj3nvXVRjROr8fVGFe5Qz3HLscJd97w3AUqiQ/exec", {
-  method: "POST",
+  method: "POST", // WAJIB POST untuk `doPost`
   headers: {
-    "Content-Type": "application/json"
+    "Content-Type": "application/json" // WAJIB ini, agar `e.postData.contents` bisa diparse di server
   },
-  body: JSON.stringify({
-    action: "kirimDataOutput",
+  body: JSON.stringify({ // Kirim data sebagai JSON
+    action: "kirimDataOutput",   // Wajib cocok dengan doPost() handler-mu
     tanggal: tanggalInput.value,
     namaBarang: selected.namaBarang,
     qty: qty,
