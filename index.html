@@ -497,7 +497,8 @@ body.dark .stok-info {
   </div>
 
 <script>
-  // 📦 Ambil elemen penting dari form
+  // 📦 Grab semua elemen form
+  const form = document.getElementById('barangForm');
   const namaBarangSelect = document.getElementById('namaBarang');
   const satuanInput = document.getElementById('satuan');
   const hargaInput = document.getElementById('harga');
@@ -506,27 +507,26 @@ body.dark .stok-info {
   const totalHargaInput = document.getElementById('totalHarga');
   const labaInput = document.getElementById('laba');
   const tanggalInput = document.getElementById('tanggal');
-  const form = document.getElementById('barangForm');
   const submitBtn = form.querySelector('button[type="submit"]');
 
   let barangList = [];
   let isSubmitting = false;
 
-  // 🗓 Set tanggal default ke hari ini
+  // 🗓 Set tanggal default hari ini
   tanggalInput.valueAsDate = new Date();
 
-  // 💸 Format angka jadi rupiah
+  // 💸 Fungsi format rupiah
   function formatRupiah(angka) {
     return 'Rp' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
-  // 🔄 Hitung ulang total harga
+  // 🔄 Update total harga otomatis
   function updateTotalHarga() {
     const selected = barangList.find(b => b.namaBarang === namaBarangSelect.value);
-    const qty = parseInt(qtyInput.value);
+    const qty = parseInt(qtyInput.value) || 0;
     const laba = parseInt(labaInput.value.replace(/[^\d]/g, '')) || 0;
 
-    if (selected && !isNaN(qty)) {
+    if (selected && qty) {
       const total = (selected.harga + laba) * qty;
       totalHargaInput.value = formatRupiah(total);
     } else {
@@ -534,194 +534,144 @@ body.dark .stok-info {
     }
   }
 
-  // ⬇️ Ambil data barang dari Apps Script
+  // 🔁 Ambil data bahan via GET
   fetch("https://script.google.com/macros/s/AKfycbwtjXiwx9bLxUrFdGhqxqQ8PVuw7kWL5dj3nvXVRjROr8fVGFe5Qz3HLscJd97w3AUqiQ/exec?action=getBahanData")
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error('Fetch GET gagal ' + res.status);
+      return res.json();
+    })
     .then(data => {
-      if (!Array.isArray(data)) throw new Error("Data bukan array");
+      if (!Array.isArray(data)) throw new Error('Data bukan array');
       barangList = data;
 
-      const defaultOption = document.createElement('option');
-      defaultOption.value = '';
-      defaultOption.disabled = true;
-      defaultOption.selected = true;
-      defaultOption.hidden = true;
-      defaultOption.textContent = '-- Pilih Barang --';
-      namaBarangSelect.appendChild(defaultOption);
+      // Tambahkan opsi default
+      const opt = document.createElement('option');
+      Object.assign(opt, { value: '', disabled: true, selected: true, hidden: true });
+      opt.textContent = '-- Pilih Barang --';
+      namaBarangSelect.append(opt);
 
+      // Isi dropdown
       barangList.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item.namaBarang;
-        option.textContent = item.namaBarang;
-        namaBarangSelect.appendChild(option);
+        const o = document.createElement('option');
+        o.value = item.namaBarang;
+        o.textContent = item.namaBarang;
+        namaBarangSelect.append(o);
       });
     })
     .catch(err => {
-      console.error("Gagal ambil data barang:", err);
+      console.error("❌ Gagal ambil data barang:", err);
       alert("Gagal memuat data barang!");
     });
 
-  // 📦 Saat barang dipilih
+  // 🧩 Ketika pilihan barang diubah
   namaBarangSelect.addEventListener('change', () => {
-    const selected = barangList.find(b => b.namaBarang === namaBarangSelect.value);
-    if (selected) {
-      satuanInput.value = selected.satuan;
-      hargaInput.value = formatRupiah(selected.harga);
-      stokInfo.textContent = `Stok tersedia: ${selected.qty} ${selected.satuan}`;
-      stokInfo.style.display = 'block';
-      qtyInput.max = selected.qty;
-      updateTotalHarga();
-    } else {
+    const sel = barangList.find(b => b.namaBarang === namaBarangSelect.value);
+    if (!sel) {
       stokInfo.style.display = 'none';
+      return;
     }
-  });
 
-  // ⌨️ Saat qty atau laba berubah
-  qtyInput.addEventListener('input', updateTotalHarga);
-  labaInput.addEventListener('input', () => {
-    let raw = labaInput.value.replace(/[^\d]/g, '');
-    let start = labaInput.selectionStart;
-    labaInput.value = formatRupiah(raw);
-    labaInput.setSelectionRange(start + 3, start + 3);
+    satuanInput.value = sel.satuan;
+    hargaInput.value = formatRupiah(sel.harga);
+    stokInfo.textContent = `Stok tersedia: ${sel.qty} ${sel.satuan}`;
+    stokInfo.style.display = 'block';
+    qtyInput.max = sel.qty;
     updateTotalHarga();
   });
 
-  // ⏳ Fungsi loading state
-  function setLoadingState(loading) {
-    submitBtn.disabled = loading;
-    submitBtn.textContent = loading ? "Mengirim..." : "Kirim";
-    form.querySelectorAll("input, select, button").forEach(el => {
-      el.disabled = loading;
-    });
+  qtyInput.addEventListener('input', updateTotalHarga);
+
+  labaInput.addEventListener('input', () => {
+    const raw = labaInput.value.replace(/[^\d]/g, '');
+    const pos = labaInput.selectionStart;
+    labaInput.value = formatRupiah(raw);
+    labaInput.setSelectionRange(pos + 3, pos + 3);
+    updateTotalHarga();
+  });
+
+  // 🎯 Loading state
+  function setLoadingState(on) {
+    form.querySelectorAll('input, select, button').forEach(el => el.disabled = on);
+    submitBtn.textContent = on ? 'Mengirim...' : 'Kirim';
   }
 
-  // 🚨 Penanda error visual
-  function markInvalid(input) {
-    input.classList.add("border-red-500", "ring-red-300", "ring-2");
-  }
+  // ⚠️ Validasi input field
+  function markInvalid(el) { el.classList.add('border-red-500', 'ring-red-300', 'ring-2'); }
+  function clearInvalid(el) { el.classList.remove('border-red-500', 'ring-red-300', 'ring-2'); }
 
-  function clearInvalid(input) {
-    input.classList.remove("border-red-500", "ring-red-300", "ring-2");
-  }
-
-  // 🚀 Saat form dikirim
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', e => {
     e.preventDefault();
     if (isSubmitting) return;
 
     isSubmitting = true;
     setLoadingState(true);
 
-    const selected = barangList.find(b => b.namaBarang === namaBarangSelect.value);
+    const sel = barangList.find(b => b.namaBarang === namaBarangSelect.value);
     const qty = parseInt(qtyInput.value);
     const labaRaw = labaInput.value.replace(/[^\d]/g, '');
+    let valid = true;
 
-    // 🔍 Validasi form
-    let isValid = true;
-    clearInvalid(tanggalInput);
-    clearInvalid(qtyInput);
-    clearInvalid(labaInput);
+    [tanggalInput, qtyInput, labaInput].forEach(clearInvalid);
 
-    if (!tanggalInput.value) {
-      markInvalid(tanggalInput);
-      isValid = false;
-    }
+    if (!tanggalInput.value) { markInvalid(tanggalInput); valid = false; }
+    if (!qty || qty <= 0) { markInvalid(qtyInput); valid = false; }
+    if (!labaRaw) { markInvalid(labaInput); valid = false; }
+    if (!sel) { alert('Barang belum dipilih'); valid = false; }
+    if (sel && qty > sel.qty) { alert('Jumlah melebihi stok'); markInvalid(qtyInput); valid = false; }
 
-    if (!qty || qty <= 0 || isNaN(qty)) {
-      markInvalid(qtyInput);
-      isValid = false;
-    }
-
-    if (!labaRaw || isNaN(parseInt(labaRaw))) {
-      markInvalid(labaInput);
-      isValid = false;
-    }
-
-    if (!selected) {
-      alert("Barang belum dipilih.");
-      isValid = false;
-    }
-
-    if (qty > selected?.qty) {
-      alert("Jumlah melebihi stok tersedia!");
-      markInvalid(qtyInput);
-      isValid = false;
-    }
-
-    if (!isValid) {
+    if (!valid) {
       setLoadingState(false);
       isSubmitting = false;
       return;
     }
 
-    const data = {
-      action: "kirimDataOutput", // ✅ Kirim action di dalam body
+    const payload = {
+      action: 'kirimDataOutput',
       tanggal: tanggalInput.value,
-      namaBarang: selected.namaBarang,
-      qty: qty,
-      satuan: selected.satuan,
-      harga: selected.harga,
+      namaBarang: sel.namaBarang,
+      qty,
+      satuan: sel.satuan,
+      harga: sel.harga,
       laba: parseInt(labaRaw)
     };
 
-// 📨 Kirim data ke server GAS
-fetch("https://script.google.com/macros/s/AKfycbwtjXiwx9bLxUrFdGhqxqQ8PVuw7kWL5dj3nvXVRjROr8fVGFe5Qz3HLscJd97w3AUqiQ/exec", {
-  method: "POST", // WAJIB POST untuk `doPost`
-  headers: {
-    "Content-Type": "application/json" // WAJIB ini, agar `e.postData.contents` bisa diparse di server
-  },
-  body: JSON.stringify({ // Kirim data sebagai JSON
-    action: "kirimDataOutput",   // Wajib cocok dengan doPost() handler-mu
-    tanggal: tanggalInput.value,
-    namaBarang: selected.namaBarang,
-    qty: qty,
-    satuan: selected.satuan,
-    harga: selected.harga,
-    laba: parseInt(labaRaw)
-  })
-})
-.then(async response => {
-  if (!response.ok) throw new Error("Gagal mengirim data");
-
-  const contentType = response.headers.get("Content-Type");
-  return contentType && contentType.includes("application/json")
-    ? await response.json()
-    : await response.text();
-})
-.then(() => {
-  Swal.fire({
-    icon: 'success',
-    title: 'Berhasil!',
-    text: 'Data barang keluar berhasil disimpan.',
-    background: document.body.classList.contains("dark") ? "#2a2a2a" : "#ffffff",
-    color: document.body.classList.contains("dark") ? "#eeeeee" : "#000000",
-    confirmButtonColor: '#28a745'
-  }).then(() => {
-    form.reset();
-    stokInfo.style.display = 'none';
-    totalHargaInput.value = '';
-    setTimeout(() => location.reload(), 400); // UX delay
+    fetch("https://script.google.com/macros/s/AKfycbwtjXiwx9bLxUrFdGhqxqQ8PVuw7kWL5dj3nvXVRjROr8fVGFe5Qz3HLscJd97w3AUqiQ/exec", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('Fetch POST gagal ' + res.status);
+      return res.text();
+    })
+    .then(msg => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: msg,
+        confirmButtonColor: '#28a745',
+      }).then(() => {
+        form.reset();
+        stokInfo.style.display = 'none';
+        totalHargaInput.value = '';
+      });
+    })
+    .catch(err => {
+      console.error('❌ ERROR FETCH:', err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: 'Ada masalah saat kirim data. Coba lagi.',
+        confirmButtonColor: '#dc3545',
+      });
+    })
+    .finally(() => {
+      setLoadingState(false);
+      isSubmitting = false;
+    });
   });
-})
-.catch(err => {
-  Swal.fire({
-    icon: 'error',
-    title: 'Gagal!',
-    text: 'Terjadi kesalahan saat mengirim data. Silakan coba lagi.',
-    background: document.body.classList.contains("dark") ? "#2a2a2a" : "#ffffff",
-    color: document.body.classList.contains("dark") ? "#eeeeee" : "#000000",
-    confirmButtonColor: '#dc3545'
-  });
-  console.error("❌ ERROR FETCH:", err);
-})
-.finally(() => {
-  setLoadingState(false);
-  isSubmitting = false;
-});
-}); // ✅ INI DIA YANG BELUM ADA!! Penting!
 </script>
 
-<!-- 🎊 Confetti support -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 </body>
