@@ -664,51 +664,61 @@ body.dark .stok-info {
       laba: parseInt(labaRaw)
     };
 
-    // 📨 Kirim data ke server GAS
-    fetch("https://script.google.com/macros/s/AKfycbwtjXiwx9bLxUrFdGhqxqQ8PVuw7kWL5dj3nvXVRjROr8fVGFe5Qz3HLscJd97w3AUqiQ/exec", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
-    })
-      .then(async response => {
-        if (!response.ok) throw new Error("Gagal mengirim data");
-        const contentType = response.headers.get("Content-Type");
-        return contentType.includes("application/json") ? await response.json() : await response.text();
-      })
-      .then(() => {
-        Swal.fire({
-          icon: 'success',
-          title: 'Berhasil!',
-          text: 'Data barang keluar berhasil disimpan.',
-          background: document.body.classList.contains("dark") ? "#2a2a2a" : "#ffffff",
-          color: document.body.classList.contains("dark") ? "#eeeeee" : "#000000",
-          confirmButtonColor: '#28a745'
-        }).then(() => {
-          // 🎉 Reset & reload
-          form.reset();
-          stokInfo.style.display = 'none';
-          totalHargaInput.value = '';
-          setTimeout(() => location.reload(), 400);
-        });
-      })
-      .catch(err => {
-        Swal.fire({
-          icon: 'error',
-          title: 'Gagal!',
-          text: 'Terjadi kesalahan saat mengirim data. Silakan coba lagi.',
-          background: document.body.classList.contains("dark") ? "#2a2a2a" : "#ffffff",
-          color: document.body.classList.contains("dark") ? "#eeeeee" : "#000000",
-          confirmButtonColor: '#dc3545'
-        });
-        console.error("❌ ERROR FETCH:", err);
-      })
-      .finally(() => {
-        setLoadingState(false);
-        isSubmitting = false;
-      });
+// 📨 Kirim data ke server GAS
+fetch("https://script.google.com/macros/s/AKfycbwtjXiwx9bLxUrFdGhqxqQ8PVuw7kWL5dj3nvXVRjROr8fVGFe5Qz3HLscJd97w3AUqiQ/exec", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    action: "kirimDataOutput",
+    tanggal: tanggalInput.value,
+    namaBarang: selected.namaBarang,
+    qty: qty,
+    satuan: selected.satuan,
+    harga: selected.harga,
+    laba: parseInt(labaRaw)
+  })
+})
+.then(async response => {
+  if (!response.ok) throw new Error("Gagal mengirim data");
+
+  const contentType = response.headers.get("Content-Type");
+  return contentType && contentType.includes("application/json")
+    ? await response.json()
+    : await response.text();
+})
+.then(() => {
+  Swal.fire({
+    icon: 'success',
+    title: 'Berhasil!',
+    text: 'Data barang keluar berhasil disimpan.',
+    background: document.body.classList.contains("dark") ? "#2a2a2a" : "#ffffff",
+    color: document.body.classList.contains("dark") ? "#eeeeee" : "#000000",
+    confirmButtonColor: '#28a745'
+  }).then(() => {
+    form.reset();
+    stokInfo.style.display = 'none';
+    totalHargaInput.value = '';
+    setTimeout(() => location.reload(), 400); // UX delay
   });
+})
+.catch(err => {
+  Swal.fire({
+    icon: 'error',
+    title: 'Gagal!',
+    text: 'Terjadi kesalahan saat mengirim data. Silakan coba lagi.',
+    background: document.body.classList.contains("dark") ? "#2a2a2a" : "#ffffff",
+    color: document.body.classList.contains("dark") ? "#eeeeee" : "#000000",
+    confirmButtonColor: '#dc3545'
+  });
+  console.error("❌ ERROR FETCH:", err);
+})
+.finally(() => {
+  setLoadingState(false);
+  isSubmitting = false;
+});
+
 </script>
 
 <!-- 🎊 Confetti support -->
