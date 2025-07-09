@@ -507,41 +507,41 @@ body.dark .stok-info {
   const labaInput = document.getElementById('laba');
   const form = document.getElementById('barangForm');
   const submitBtn = form.querySelector('button[type="submit"]');
-
-  // Set tanggal otomatis ke hari ini
-  document.getElementById("tanggal").valueAsDate = new Date();
+  const tanggalInput = document.getElementById("tanggal");
 
   let barangList = [];
+  let isSubmitting = false; // 🔒 Prevent ganda submit
 
-  // Fungsi untuk format ke Rupiah
+  // Set tanggal otomatis ke hari ini
+  tanggalInput.valueAsDate = new Date();
+
+  // Format angka ke Rupiah
   function formatRupiah(angka) {
     return 'Rp' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
-  // Update total harga ketika qty atau laba berubah
+  // Update total harga
   function updateTotalHarga() {
     const selected = barangList.find(b => b.namaBarang === namaBarangSelect.value);
     const qty = parseInt(qtyInput.value);
-    let laba = parseInt(labaInput.value.replace(/[^\d]/g, '')) || 0;
+    const laba = parseInt(labaInput.value.replace(/[^\d]/g, '')) || 0;
 
     if (selected && !isNaN(qty)) {
-      const harga = selected.harga;
-      const total = (harga + laba) * qty;
+      const total = (selected.harga + laba) * qty;
       totalHargaInput.value = formatRupiah(total);
     } else {
       totalHargaInput.value = '';
     }
   }
 
-  // Ambil data dari server Glitch
+  // Ambil data barang dari Apps Script
   fetch("https://script.google.com/macros/s/AKfycbwwnK8TXS84DVnOoSNfZeeTA212LxJYwVkp541YSbYAgo-bEeoNDCzOIvutJYlhkIBx6g/exec?action=getBahanData")
     .then(res => res.json())
     .then(data => {
       if (!Array.isArray(data)) throw new Error("Data bukan array");
-
       barangList = data;
 
-      // Tambahkan opsi default
+      // Tambah opsi default
       const defaultOption = document.createElement('option');
       defaultOption.value = '';
       defaultOption.disabled = true;
@@ -550,7 +550,7 @@ body.dark .stok-info {
       defaultOption.textContent = '-- Pilih Barang --';
       namaBarangSelect.appendChild(defaultOption);
 
-      // Tambahkan semua opsi dari data
+      // Isi pilihan barang
       barangList.forEach(item => {
         const option = document.createElement('option');
         option.value = item.namaBarang;
@@ -563,58 +563,64 @@ body.dark .stok-info {
       alert("Gagal memuat data barang!");
     });
 
-  // Event ketika nama barang dipilih
+  // Saat barang dipilih
   namaBarangSelect.addEventListener('change', () => {
     const selected = barangList.find(b => b.namaBarang === namaBarangSelect.value);
     if (selected) {
       satuanInput.value = selected.satuan;
       hargaInput.value = formatRupiah(selected.harga);
       stokInfo.textContent = `Stok tersedia: ${selected.qty} ${selected.satuan}`;
-      stokInfo.style.display = 'block'; // Tampilkan info stok
+      stokInfo.style.display = 'block';
       qtyInput.max = selected.qty;
       updateTotalHarga();
     } else {
-      stokInfo.style.display = 'none'; // Sembunyikan jika tidak valid
+      stokInfo.style.display = 'none';
     }
   });
 
-  // Event untuk update harga total saat input qty atau laba berubah
+  // Saat qty berubah
   qtyInput.addEventListener('input', updateTotalHarga);
 
+  // Saat laba diketik
   labaInput.addEventListener('input', () => {
     let raw = labaInput.value.replace(/[^\d]/g, '');
+
+    // 🔧 Cegah kursor loncat
+    let start = labaInput.selectionStart;
     labaInput.value = formatRupiah(raw);
+    labaInput.setSelectionRange(start + 3, start + 3); // Rp = 2 huruf + 1 spasi
     updateTotalHarga();
   });
 
-
-  // Fungsi loading saat form dikirim
+  // Fungsi loading state
   function setLoadingState(loading) {
     submitBtn.disabled = loading;
     submitBtn.textContent = loading ? "Mengirim..." : "Kirim";
   }
 
-  // Fungsi penanda input error
+  // Mark error field
   function markInvalid(input) {
     input.classList.add("border-red-500", "ring-red-300", "ring-2");
   }
 
-  // Fungsi untuk menghapus penanda error
+  // Clear error
   function clearInvalid(input) {
     input.classList.remove("border-red-500", "ring-red-300", "ring-2");
   }
 
-  // Proses submit form
+  // Submit form
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+
+    if (isSubmitting) return; // 🔐 Prevent ganda
+    isSubmitting = true;
     setLoadingState(true);
 
-    const tanggalInput = document.getElementById('tanggal');
-    const labaRaw = labaInput.value.replace(/[^\d]/g, '');
     const selected = barangList.find(b => b.namaBarang === namaBarangSelect.value);
     const qty = parseInt(qtyInput.value);
+    const labaRaw = labaInput.value.replace(/[^\d]/g, '');
 
-    // Validasi input
+    // Validasi
     let isValid = true;
     clearInvalid(tanggalInput);
     clearInvalid(qtyInput);
@@ -648,10 +654,10 @@ body.dark .stok-info {
 
     if (!isValid) {
       setLoadingState(false);
+      isSubmitting = false;
       return;
     }
 
-    // Siapkan data untuk dikirim
     const data = {
       tanggal: tanggalInput.value,
       namaBarang: selected.namaBarang,
@@ -661,53 +667,57 @@ body.dark .stok-info {
       laba: parseInt(labaRaw)
     };
 
-    // Kirim data ke server
-// Kirim data ke server
-fetch("https://script.google.com/macros/s/AKfycbwwnK8TXS84DVnOoSNfZeeTA212LxJYwVkp541YSbYAgo-bEeoNDCzOIvutJYlhkIBx6g/exec?action=kirimDataOutput", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify(data)
-})
-  .then(async response => {
-    if (!response.ok) throw new Error("Gagal mengirim data");
+    // Kirim ke Apps Script
+    fetch("https://script.google.com/macros/s/AKfycbwwnK8TXS84DVnOoSNfZeeTA212LxJYwVkp541YSbYAgo-bEeoNDCzOIvutJYlhkIBx6g/exec?action=kirimDataOutput", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    })
+      .then(async response => {
+        if (!response.ok) throw new Error("Gagal mengirim data");
 
-    const contentType = response.headers.get("Content-Type");
-    if (contentType && contentType.includes("application/json")) {
-      return await response.json();
-    } else {
-      return await response.text(); // fallback untuk response non-JSON
-    }
-  })
-  .then(() => {
-    Swal.fire({
-      icon: 'success',
-      title: 'Berhasil!',
-      text: 'Data barang keluar berhasil disimpan.',
-      background: document.body.classList.contains("dark") ? "#2a2a2a" : "#ffffff",
-      color: document.body.classList.contains("dark") ? "#eeeeee" : "#000000",
-      confirmButtonColor: '#28a745'
-    }).then(() => {
-      location.reload(); // ⬅️ reload otomatis setelah user klik OK
-    });
-  })
-  .catch(err => {
-    Swal.fire({
-      icon: 'error',
-      title: 'Gagal!',
-      text: 'Terjadi kesalahan saat mengirim data. Silakan coba lagi.',
-      background: document.body.classList.contains("dark") ? "#2a2a2a" : "#ffffff",
-      color: document.body.classList.contains("dark") ? "#eeeeee" : "#000000",
-      confirmButtonColor: '#dc3545'
-    });
-    console.error("Error:", err);
-  })
-  .finally(() => {
-    setLoadingState(false);
+        const contentType = response.headers.get("Content-Type");
+        if (contentType && contentType.includes("application/json")) {
+          return await response.json();
+        } else {
+          return await response.text();
+        }
+      })
+      .then(() => {
+        // ✅ Berhasil
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: 'Data barang keluar berhasil disimpan.',
+          background: document.body.classList.contains("dark") ? "#2a2a2a" : "#ffffff",
+          color: document.body.classList.contains("dark") ? "#eeeeee" : "#000000",
+          confirmButtonColor: '#28a745'
+        }).then(() => {
+          setTimeout(() => location.reload(), 400); // ⏳ delay biar UX enak
+        });
+      })
+      .catch(err => {
+        // ❌ Gagal
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal!',
+          text: 'Terjadi kesalahan saat mengirim data. Silakan coba lagi.',
+          background: document.body.classList.contains("dark") ? "#2a2a2a" : "#ffffff",
+          color: document.body.classList.contains("dark") ? "#eeeeee" : "#000000",
+          confirmButtonColor: '#dc3545'
+        });
+        console.error("Error:", err);
+      })
+      .finally(() => {
+        setLoadingState(false);
+        isSubmitting = false;
+      });
   });
-});
 </script>
+
+<!-- Confetti tetap bisa aktif -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </body>
 </html>
