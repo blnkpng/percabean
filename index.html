@@ -497,7 +497,7 @@ body.dark .stok-info {
   </div>
 
 <script>
-  // Ambil elemen DOM
+  // 📦 Ambil elemen penting dari form
   const namaBarangSelect = document.getElementById('namaBarang');
   const satuanInput = document.getElementById('satuan');
   const hargaInput = document.getElementById('harga');
@@ -505,22 +505,22 @@ body.dark .stok-info {
   const qtyInput = document.getElementById('qty');
   const totalHargaInput = document.getElementById('totalHarga');
   const labaInput = document.getElementById('laba');
+  const tanggalInput = document.getElementById('tanggal');
   const form = document.getElementById('barangForm');
   const submitBtn = form.querySelector('button[type="submit"]');
-  const tanggalInput = document.getElementById("tanggal");
 
   let barangList = [];
-  let isSubmitting = false; // 🔒 Prevent ganda submit
+  let isSubmitting = false;
 
-  // Set tanggal otomatis ke hari ini
+  // 🗓 Set tanggal default ke hari ini
   tanggalInput.valueAsDate = new Date();
 
-  // Format angka ke Rupiah
+  // 💸 Format angka jadi rupiah
   function formatRupiah(angka) {
     return 'Rp' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
-  // Update total harga
+  // 🔄 Hitung ulang total harga
   function updateTotalHarga() {
     const selected = barangList.find(b => b.namaBarang === namaBarangSelect.value);
     const qty = parseInt(qtyInput.value);
@@ -534,14 +534,13 @@ body.dark .stok-info {
     }
   }
 
-  // Ambil data barang dari Apps Script
+  // ⬇️ Ambil data barang dari Apps Script
   fetch("https://script.google.com/macros/s/AKfycbwtjXiwx9bLxUrFdGhqxqQ8PVuw7kWL5dj3nvXVRjROr8fVGFe5Qz3HLscJd97w3AUqiQ/exec?action=getBahanData")
     .then(res => res.json())
     .then(data => {
       if (!Array.isArray(data)) throw new Error("Data bukan array");
       barangList = data;
 
-      // Tambah opsi default
       const defaultOption = document.createElement('option');
       defaultOption.value = '';
       defaultOption.disabled = true;
@@ -550,7 +549,6 @@ body.dark .stok-info {
       defaultOption.textContent = '-- Pilih Barang --';
       namaBarangSelect.appendChild(defaultOption);
 
-      // Isi pilihan barang
       barangList.forEach(item => {
         const option = document.createElement('option');
         option.value = item.namaBarang;
@@ -563,7 +561,7 @@ body.dark .stok-info {
       alert("Gagal memuat data barang!");
     });
 
-  // Saat barang dipilih
+  // 📦 Saat barang dipilih
   namaBarangSelect.addEventListener('change', () => {
     const selected = barangList.find(b => b.namaBarang === namaBarangSelect.value);
     if (selected) {
@@ -578,41 +576,39 @@ body.dark .stok-info {
     }
   });
 
-  // Saat qty berubah
+  // ⌨️ Saat qty atau laba berubah
   qtyInput.addEventListener('input', updateTotalHarga);
-
-  // Saat laba diketik
   labaInput.addEventListener('input', () => {
     let raw = labaInput.value.replace(/[^\d]/g, '');
-
-    // 🔧 Cegah kursor loncat
     let start = labaInput.selectionStart;
     labaInput.value = formatRupiah(raw);
-    labaInput.setSelectionRange(start + 3, start + 3); // Rp = 2 huruf + 1 spasi
+    labaInput.setSelectionRange(start + 3, start + 3);
     updateTotalHarga();
   });
 
-  // Fungsi loading state
+  // ⏳ Fungsi loading state
   function setLoadingState(loading) {
     submitBtn.disabled = loading;
     submitBtn.textContent = loading ? "Mengirim..." : "Kirim";
+    form.querySelectorAll("input, select, button").forEach(el => {
+      el.disabled = loading;
+    });
   }
 
-  // Mark error field
+  // 🚨 Penanda error visual
   function markInvalid(input) {
     input.classList.add("border-red-500", "ring-red-300", "ring-2");
   }
 
-  // Clear error
   function clearInvalid(input) {
     input.classList.remove("border-red-500", "ring-red-300", "ring-2");
   }
 
-  // Submit form
+  // 🚀 Saat form dikirim
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
-    if (isSubmitting) return; // 🔐 Prevent ganda
     isSubmitting = true;
     setLoadingState(true);
 
@@ -620,7 +616,7 @@ body.dark .stok-info {
     const qty = parseInt(qtyInput.value);
     const labaRaw = labaInput.value.replace(/[^\d]/g, '');
 
-    // Validasi
+    // 🔍 Validasi form
     let isValid = true;
     clearInvalid(tanggalInput);
     clearInvalid(qtyInput);
@@ -659,6 +655,7 @@ body.dark .stok-info {
     }
 
     const data = {
+      action: "kirimDataOutput", // ✅ Kirim action di dalam body
       tanggal: tanggalInput.value,
       namaBarang: selected.namaBarang,
       qty: qty,
@@ -667,8 +664,8 @@ body.dark .stok-info {
       laba: parseInt(labaRaw)
     };
 
-    // Kirim ke Apps Script
-    fetch("https://script.google.com/macros/s/AKfycbwtjXiwx9bLxUrFdGhqxqQ8PVuw7kWL5dj3nvXVRjROr8fVGFe5Qz3HLscJd97w3AUqiQ/exec?action=kirimDataOutput", {
+    // 📨 Kirim data ke server GAS
+    fetch("https://script.google.com/macros/s/AKfycbwtjXiwx9bLxUrFdGhqxqQ8PVuw7kWL5dj3nvXVRjROr8fVGFe5Qz3HLscJd97w3AUqiQ/exec", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -677,16 +674,10 @@ body.dark .stok-info {
     })
       .then(async response => {
         if (!response.ok) throw new Error("Gagal mengirim data");
-
         const contentType = response.headers.get("Content-Type");
-        if (contentType && contentType.includes("application/json")) {
-          return await response.json();
-        } else {
-          return await response.text();
-        }
+        return contentType.includes("application/json") ? await response.json() : await response.text();
       })
       .then(() => {
-        // ✅ Berhasil
         Swal.fire({
           icon: 'success',
           title: 'Berhasil!',
@@ -695,11 +686,14 @@ body.dark .stok-info {
           color: document.body.classList.contains("dark") ? "#eeeeee" : "#000000",
           confirmButtonColor: '#28a745'
         }).then(() => {
-          setTimeout(() => location.reload(), 400); // ⏳ delay biar UX enak
+          // 🎉 Reset & reload
+          form.reset();
+          stokInfo.style.display = 'none';
+          totalHargaInput.value = '';
+          setTimeout(() => location.reload(), 400);
         });
       })
       .catch(err => {
-        // ❌ Gagal
         Swal.fire({
           icon: 'error',
           title: 'Gagal!',
@@ -708,7 +702,7 @@ body.dark .stok-info {
           color: document.body.classList.contains("dark") ? "#eeeeee" : "#000000",
           confirmButtonColor: '#dc3545'
         });
-        console.error("Error:", err);
+        console.error("❌ ERROR FETCH:", err);
       })
       .finally(() => {
         setLoadingState(false);
@@ -717,7 +711,8 @@ body.dark .stok-info {
   });
 </script>
 
-<!-- Confetti tetap bisa aktif -->
+<!-- 🎊 Confetti support -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
 </body>
 </html>
