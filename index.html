@@ -535,7 +535,7 @@ body.dark .stok-info {
   }
 
   // Ambil data barang dari Apps Script
-  fetch("https://script.google.com/macros/s/AKfycbwwnK8TXS84DVnOoSNfZeeTA212LxJYwVkp541YSbYAgo-bEeoNDCzOIvutJYlhkIBx6g/exec?action=getBahanData")
+  fetch("https://script.google.com/macros/s/AKfycbwtjXiwx9bLxUrFdGhqxqQ8PVuw7kWL5dj3nvXVRjROr8fVGFe5Qz3HLscJd97w3AUqiQ/exec?action=getBahanData")
     .then(res => res.json())
     .then(data => {
       if (!Array.isArray(data)) throw new Error("Data bukan array");
@@ -668,7 +668,7 @@ body.dark .stok-info {
     };
 
     // Kirim ke Apps Script
-    fetch("https://script.google.com/macros/s/AKfycbwwnK8TXS84DVnOoSNfZeeTA212LxJYwVkp541YSbYAgo-bEeoNDCzOIvutJYlhkIBx6g/exec?action=kirimDataOutput", {
+    fetch("https://script.google.com/macros/s/AKfycbwtjXiwx9bLxUrFdGhqxqQ8PVuw7kWL5dj3nvXVRjROr8fVGFe5Qz3HLscJd97w3AUqiQ/exec?action=kirimDataOutput", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
